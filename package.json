@@ -1,5 +1,5 @@
 {
-  "name": "u4u",
+  "name": "sequine",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^8.0.1"
+    "vite": "^8.0.1",
+    "vite-plugin-singlefile": "^2.3.3"
+  },
+  "dependencies": {
+    "split-grid": "^1.0.11"
   }
 }
