@@ -3,15 +3,15 @@ import './style.css'
 document.querySelector('#app').innerHTML = `
 <button class="save-button" type="button">Save</button>
 <div class="grid">
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
-    <div class="cell" contenteditable="false"></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">FACTS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">MERITS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">PEOPLE</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">THOUGHTS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">FOCUS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">ACTIONS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">FEELINGS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">NEEDS</h2><div class="cell-content" contenteditable="false"></div></div>
+    <div class="cell"><h2 class="cell-header" contenteditable="false">TOPICS</h2><div class="cell-content" contenteditable="false"></div></div>
     <div class="gutter-col gutter-col-1" data-track="1"></div>
     <div class="gutter-col gutter-col-3" data-track="3"></div>
     <div class="gutter-row gutter-row-1" data-track="1"></div>
@@ -22,7 +22,7 @@ document.querySelector('#app').innerHTML = `
 function initializeSavedCopy() {
     const grid = document.querySelector('.grid')
     const saveButton = document.querySelector('.save-button')
-    const cells = Array.from(document.querySelectorAll('.cell'))
+    const cells = Array.from(document.querySelectorAll('.cell-content'))
     const gutters = Array.from(document.querySelectorAll('.gutter-col, .gutter-row'))
     let initialContent = cells.map((cell) => cell.innerHTML)
 
@@ -68,7 +68,7 @@ function initializeSavedCopy() {
         inlineStyles.textContent = getStyles()
         head.querySelectorAll('link[rel="stylesheet"]').forEach((link) => link.remove())
         head.append(inlineStyles)
-        copy.querySelectorAll('.cell').forEach((cell) => {
+        copy.querySelectorAll('.cell-content').forEach((cell) => {
             cell.contentEditable = 'false'
         })
         copy.querySelector('.save-button').disabled = true
