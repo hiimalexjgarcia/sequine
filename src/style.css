@@ -58,7 +58,8 @@ body, html {
 
 .grid {
     display: grid;
-    height: 100vh; width: 100vw;
+    position: fixed;
+    inset: 0;
     grid-template-rows: 1fr 8px 1fr 8px 1fr;
     grid-template-columns: 1fr 8px 1fr 8px 1fr;
 }

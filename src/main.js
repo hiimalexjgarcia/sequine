@@ -47,6 +47,37 @@ function initializeSavedCopy() {
         })
     }
 
+    function resizeGrid() {
+        const { width, height } = grid.getBoundingClientRect()
+        const [leftColumn, rightColumn, topRow, bottomRow] = dividerPositions
+        const columnSizes = [
+            Math.max(0, leftColumn * width - 4),
+            Math.max(0, (rightColumn - leftColumn) * width - 8),
+            Math.max(0, (1 - rightColumn) * width - 4),
+        ]
+        const rowSizes = [
+            Math.max(0, topRow * height - 4),
+            Math.max(0, (bottomRow - topRow) * height - 8),
+            Math.max(0, (1 - bottomRow) * height - 4),
+        ]
+        grid.style.gridTemplateColumns = `${columnSizes[0]}fr 8px ${columnSizes[1]}fr 8px ${columnSizes[2]}fr`
+        grid.style.gridTemplateRows = `${rowSizes[0]}fr 8px ${rowSizes[1]}fr 8px ${rowSizes[2]}fr`
+        dividerPositions = getDividerPositions()
+    }
+
+    let dividerPositions = getDividerPositions()
+    const savedViewportWidth = Number(grid.dataset.viewportWidth)
+    const savedViewportHeight = Number(grid.dataset.viewportHeight)
+    const savedDividerPositions = grid.dataset.dividerPositions?.split(',').map(Number)
+    if (
+        savedViewportWidth !== window.innerWidth ||
+        savedViewportHeight !== window.innerHeight
+    ) {
+        if (savedDividerPositions?.length === gutters.length && savedDividerPositions.every(Number.isFinite)) {
+            dividerPositions = savedDividerPositions
+            resizeGrid()
+        }
+    }
     let initialDividerPositions = getDividerPositions()
 
     function updateSaveButton() {
@@ -63,6 +94,10 @@ function initializeSavedCopy() {
 
     function downloadPage() {
         const copy = document.documentElement.cloneNode(true)
+        const copyGrid = copy.querySelector('.grid')
+        copyGrid.dataset.viewportWidth = String(window.innerWidth)
+        copyGrid.dataset.viewportHeight = String(window.innerHeight)
+        copyGrid.dataset.dividerPositions = getDividerPositions().join(',')
         const head = copy.querySelector('head')
         const inlineStyles = document.createElement('style')
         inlineStyles.textContent = getStyles()
@@ -82,7 +117,11 @@ function initializeSavedCopy() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = 'sequine.html'
+        const focusCell = Array.from(document.querySelectorAll('.cell')).find((cell) => {
+            return cell.querySelector('.cell-header').textContent === 'FOCUS'
+        })
+        const focusContent = focusCell.querySelector('.cell-content').textContent
+        link.download = `Sequine: ${focusContent} ${new Date().toISOString()}.html`
         link.click()
         setTimeout(() => URL.revokeObjectURL(url), 1000)
         initialContent = cells.map((cell) => cell.innerHTML)
@@ -103,6 +142,9 @@ function initializeSavedCopy() {
 
     saveButton.disabled = true
     saveButton.addEventListener('click', downloadPage)
+    window.addEventListener('resize', resizeGrid)
+    dividerPositions = getDividerPositions()
+    resizeGrid()
 
     function enableGutterDrag(gutter, direction) {
         const track = Number(gutter.dataset.track)
@@ -126,6 +168,7 @@ function initializeSavedCopy() {
                 sizes[before] = `${beforeSize + delta}px`
                 sizes[after] = `${afterSize - delta}px`
                 grid.style[property] = sizes.map((size) => typeof size === 'number' ? `${size}px` : size).join(' ')
+                dividerPositions = getDividerPositions()
                 updateSaveButton()
             }
             gutter.onpointerup = () => {
