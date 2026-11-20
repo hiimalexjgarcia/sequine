@@ -16,6 +16,10 @@ document.querySelector('#app').innerHTML = `
     <div class="gutter-col gutter-col-3" data-track="3"></div>
     <div class="gutter-row gutter-row-1" data-track="1"></div>
     <div class="gutter-row gutter-row-3" data-track="3"></div>
+    <button class="gutter-intersection gutter-intersection-1-1" type="button" aria-label="Resize intersecting dividers" data-column-track="1" data-row-track="1"></button>
+    <button class="gutter-intersection gutter-intersection-1-3" type="button" aria-label="Resize intersecting dividers" data-column-track="1" data-row-track="3"></button>
+    <button class="gutter-intersection gutter-intersection-3-1" type="button" aria-label="Resize intersecting dividers" data-column-track="3" data-row-track="1"></button>
+    <button class="gutter-intersection gutter-intersection-3-3" type="button" aria-label="Resize intersecting dividers" data-column-track="3" data-row-track="3"></button>
 </div>
 `
 
@@ -178,8 +182,75 @@ function initializeSavedCopy() {
         })
     }
 
+    function resizeIntersection(intersection, columnSizes, rowSizes, deltaX, deltaY) {
+        const columnBefore = Number(intersection.dataset.columnTrack) - 1
+        const columnAfter = columnBefore + 2
+        const rowBefore = Number(intersection.dataset.rowTrack) - 1
+        const rowAfter = rowBefore + 2
+        const boundedX = Math.max(-columnSizes[columnBefore], Math.min(columnSizes[columnAfter], deltaX))
+        const boundedY = Math.max(-rowSizes[rowBefore], Math.min(rowSizes[rowAfter], deltaY))
+        const nextColumnSizes = columnSizes.slice()
+        const nextRowSizes = rowSizes.slice()
+
+        nextColumnSizes[columnBefore] += boundedX
+        nextColumnSizes[columnAfter] -= boundedX
+        nextRowSizes[rowBefore] += boundedY
+        nextRowSizes[rowAfter] -= boundedY
+        grid.style.gridTemplateColumns = nextColumnSizes.map((size) => `${size}px`).join(' ')
+        grid.style.gridTemplateRows = nextRowSizes.map((size) => `${size}px`).join(' ')
+        dividerPositions = getDividerPositions()
+        updateSaveButton()
+    }
+
+    function enableIntersectionDrag(intersection) {
+        intersection.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0) return
+            event.preventDefault()
+
+            const columnSizes = getComputedStyle(grid).gridTemplateColumns.split(/\s+/).map(parseFloat)
+            const rowSizes = getComputedStyle(grid).gridTemplateRows.split(/\s+/).map(parseFloat)
+            const startX = event.clientX
+            const startY = event.clientY
+
+            intersection.setPointerCapture(event.pointerId)
+            intersection.onpointermove = (moveEvent) => {
+                resizeIntersection(
+                    intersection,
+                    columnSizes,
+                    rowSizes,
+                    moveEvent.clientX - startX,
+                    moveEvent.clientY - startY,
+                )
+            }
+            const stopDragging = () => {
+                intersection.onpointermove = null
+                intersection.onpointerup = null
+                intersection.onpointercancel = null
+            }
+            intersection.onpointerup = stopDragging
+            intersection.onpointercancel = stopDragging
+        })
+
+        intersection.addEventListener('keydown', (event) => {
+            const delta = 10
+            const movement = {
+                ArrowLeft: [-delta, 0],
+                ArrowRight: [delta, 0],
+                ArrowUp: [0, -delta],
+                ArrowDown: [0, delta],
+            }[event.key]
+            if (!movement) return
+            event.preventDefault()
+
+            const columnSizes = getComputedStyle(grid).gridTemplateColumns.split(/\s+/).map(parseFloat)
+            const rowSizes = getComputedStyle(grid).gridTemplateRows.split(/\s+/).map(parseFloat)
+            resizeIntersection(intersection, columnSizes, rowSizes, ...movement)
+        })
+    }
+
     document.querySelectorAll('.gutter-col').forEach((gutter) => enableGutterDrag(gutter, 'column'))
     document.querySelectorAll('.gutter-row').forEach((gutter) => enableGutterDrag(gutter, 'row'))
+    document.querySelectorAll('.gutter-intersection').forEach(enableIntersectionDrag)
 }
 
 initializeSavedCopy()

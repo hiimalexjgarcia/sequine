@@ -3,4 +3,10 @@ import { viteSingleFile } from "vite-plugin-singlefile"
 
 export default defineConfig({
 	plugins: [viteSingleFile()],
+	server: {
+		allowedHosts: true,
+	},
+	preview: {
+		allowedHosts: true,
+	},
 })
