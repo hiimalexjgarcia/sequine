@@ -1,8 +1,30 @@
 :root {
+    color-scheme: dark;
     --bg-color: #0f172a;
     --cell-color: #1e293b;
     --divider-color: #334155;
     --text-color: #f1f5f9;
+    --header-text-color: #94a3b8;
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+    --bg-color: #f8fafc;
+    --cell-color: #ffffff;
+    --divider-color: #cbd5e1;
+    --text-color: #0f172a;
+    --header-text-color: #475569;
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        color-scheme: light;
+        --bg-color: #f8fafc;
+        --cell-color: #ffffff;
+        --divider-color: #cbd5e1;
+        --text-color: #0f172a;
+        --header-text-color: #475569;
+    }
 }
 
 body, html {
@@ -24,7 +46,7 @@ body, html {
     margin: 0;
     padding: 10px 20px;
     border-bottom: 1px solid var(--divider-color);
-    color: #94a3b8;
+    color: var(--header-text-color);
     font-size: 0.8rem;
     letter-spacing: 0.08em;
 }
@@ -54,6 +76,19 @@ body, html {
 .save-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.theme-select {
+    position: fixed;
+    z-index: 1;
+    top: 12px;
+    right: 94px;
+    padding: 8px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--cell-color);
+    color: var(--text-color);
+    font: inherit;
 }
 
 .grid {

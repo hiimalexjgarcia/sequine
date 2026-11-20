@@ -2,6 +2,11 @@ import './style.css'
 
 document.querySelector('#app').innerHTML = `
 <button class="save-button" type="button">Save</button>
+<select class="theme-select" aria-label="Color theme">
+    <option value="system">System</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+</select>
 <div class="grid">
     <div class="cell"><h2 class="cell-header" contenteditable="false">FACTS</h2><div class="cell-content" contenteditable="false"></div></div>
     <div class="cell"><h2 class="cell-header" contenteditable="false">MERITS</h2><div class="cell-content" contenteditable="false"></div></div>
@@ -26,9 +31,14 @@ document.querySelector('#app').innerHTML = `
 function initializeSavedCopy() {
     const grid = document.querySelector('.grid')
     const saveButton = document.querySelector('.save-button')
+    const themeSelect = document.querySelector('.theme-select')
     const cells = Array.from(document.querySelectorAll('.cell-content'))
     const gutters = Array.from(document.querySelectorAll('.gutter-col, .gutter-row'))
     let initialContent = cells.map((cell) => cell.innerHTML)
+    const themePreference = document.documentElement.dataset.theme || 'system'
+    themeSelect.value = themePreference
+    document.documentElement.dataset.theme = themePreference
+    let initialTheme = themePreference
 
     function getStyles() {
         return Array.from(document.styleSheets).map((styleSheet) => {
@@ -93,7 +103,7 @@ function initializeSavedCopy() {
                 : grid.clientHeight
             return Math.abs(position - initialDividerPositions[index]) * size > 1
         })
-        saveButton.disabled = !contentChanged && !dividersChanged
+        saveButton.disabled = !contentChanged && !dividersChanged && themeSelect.value === initialTheme
     }
 
     function downloadPage() {
@@ -130,6 +140,7 @@ function initializeSavedCopy() {
         setTimeout(() => URL.revokeObjectURL(url), 1000)
         initialContent = cells.map((cell) => cell.innerHTML)
         initialDividerPositions = getDividerPositions()
+        initialTheme = themeSelect.value
         updateSaveButton()
     }
 
@@ -146,6 +157,10 @@ function initializeSavedCopy() {
 
     saveButton.disabled = true
     saveButton.addEventListener('click', downloadPage)
+    themeSelect.addEventListener('change', () => {
+        document.documentElement.dataset.theme = themeSelect.value
+        updateSaveButton()
+    })
     window.addEventListener('resize', resizeGrid)
     dividerPositions = getDividerPositions()
     resizeGrid()
